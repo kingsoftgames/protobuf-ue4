@@ -37,12 +37,15 @@ tar zxf $PROTOBUF_TAR
 cd $PROTOBUF_DIR/cmake
 
 cmake -DCMAKE_INSTALL_PREFIX=$PROTOBUF_UE4_PREFIX/ios . -G "Xcode"
-xcodebuild -project protobuf.xcodeproj\
-    -target libprotobuf -configuration Release\
-    -sdk iphoneos -arch arm64\
-    IPHONEOS_DEPLOYMENT_TARGET=$PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET\
-    GCC_SYMBOLS_PRIVATE_EXTERN=YES\
-    -jobs $CORE_COUNT build
+xcodebuild -project protobuf.xcodeproj                               \
+  -target libprotobuf                                                \
+  -configuration Release                                             \
+  -sdk iphoneos                                                      \
+  -arch arm64                                                        \
+  IPHONEOS_DEPLOYMENT_TARGET=$PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET     \
+  GCC_SYMBOLS_PRIVATE_EXTERN=YES                                     \
+  -jobs $CORE_COUNT                                                  \
+  build
 xcodebuild -target install build
 
 rm -rf ${PROTOBUF_UE4_PREFIX}/ios/include
