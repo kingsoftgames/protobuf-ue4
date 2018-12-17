@@ -1,24 +1,24 @@
 #!/bin/bash
 
 if [[ -z "${PROTOBUF_UE4_VERSION}" ]]; then
-    echo "PROTOBUF_UE4_VERSION is not set, exit."
-    exit 1
+  echo "PROTOBUF_UE4_VERSION is not set, exit."
+  exit 1
 else
-    echo "PROTOBUF_UE4_VERSION: ${PROTOBUF_UE4_VERSION}"
+  echo "PROTOBUF_UE4_VERSION: ${PROTOBUF_UE4_VERSION}"
 fi
 
 if [[ -z "${PROTOBUF_UE4_PREFIX}" ]]; then
-    echo "PROTOBUF_UE4_PREFIX is not set, exit."
-    exit 1
+  echo "PROTOBUF_UE4_PREFIX is not set, exit."
+  exit 1
 else
-    echo "PROTOBUF_UE4_PREFIX: ${PROTOBUF_UE4_PREFIX}"
+  echo "PROTOBUF_UE4_PREFIX: ${PROTOBUF_UE4_PREFIX}"
 fi
 
 if [[ -z "${PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET}" ]]; then
-    echo "PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET is not set, exit."
-    exit 1
+  echo "PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET is not set, exit."
+  exit 1
 else
-    echo "PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET: ${PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET}"
+  echo "PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET: ${PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET}"
 fi
 
 readonly CORE_COUNT=$(sysctl -n machdep.cpu.core_count)
