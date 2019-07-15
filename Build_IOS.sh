@@ -22,17 +22,12 @@ else
 fi
 
 readonly CORE_COUNT=$(sysctl -n machdep.cpu.core_count)
-readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
+
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
-readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
 rm -rf ${PROTOBUF_UE4_PREFIX}
 mkdir -p ${PROTOBUF_UE4_PREFIX}
 
-rm -rf ${PROTOBUF_DIR}
-wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
-
-tar zxf ${PROTOBUF_TAR}
 cd ${PROTOBUF_DIR}/cmake
 
 cmake -DCMAKE_INSTALL_PREFIX=${PROTOBUF_UE4_PREFIX}/ios . -G "Xcode"

@@ -150,9 +150,9 @@ class BaseProtoStreamObjectWriterTest
     if (expected_length >= 0) {
       EXPECT_EQ(expected_length, nbytes);
     }
-    string str(buffer.get(), nbytes);
+    std::string str(buffer.get(), nbytes);
 
-    std::stringbuf str_buf(str.c_str(), std::ios_base::in);
+    std::stringbuf str_buf(str, std::ios_base::in);
     std::istream istream(&str_buf);
     std::unique_ptr<Message> message(expected.New());
     message->ParsePartialFromIstream(&istream);

@@ -21,15 +21,8 @@ else
   echo "NDKROOT: ${NDKROOT}"
 fi
 
-readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
-readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-rm -rf ${PROTOBUF_DIR}
-
-wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
-
-tar zxf ${PROTOBUF_TAR}
 cd ${PROTOBUF_DIR}
 
 rm -rf ${PROTOBUF_UE4_PREFIX}
@@ -49,6 +42,8 @@ export STRIP=${TOOLCHAIN}/arm-linux-androideabi-strip
 export READELF=${TOOLCHAIN}/arm-linux-androideabi-readelf
 export CXXSTL=${NDKROOT}/sources/cxx-stl/gnu-libstdc++/4.9
 export LIBS="-llog ${CXXSTL}/libs/armeabi-v7a/libgnustl_static.a"
+
+chmod +x autogen.sh configure
 
 ./autogen.sh
 

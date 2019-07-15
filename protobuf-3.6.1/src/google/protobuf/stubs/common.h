@@ -46,6 +46,7 @@
 #include <google/protobuf/stubs/port.h>
 #include <google/protobuf/stubs/macros.h>
 #include <google/protobuf/stubs/platform_macros.h>
+#include <google/protobuf/stubs/unreal_allocator.h>
 
 // TODO(liujisi): Remove the following includes after the include clean-up.
 #include <google/protobuf/stubs/logging.h>

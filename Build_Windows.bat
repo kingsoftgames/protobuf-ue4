@@ -35,24 +35,7 @@ if exist "%VS2017DEVCMD%" (
      exit /b 2
 )
 
-set PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v%PROTOBUF_UE4_VERSION%/protobuf-cpp-%PROTOBUF_UE4_VERSION%.zip
 set PROTOBUF_DIR=protobuf-%PROTOBUF_UE4_VERSION%
-set PROTOBUF_ZIP=protobuf-%PROTOBUF_UE4_VERSION%.zip
-
-rd /S /Q %PROTOBUF_DIR%
-
-REM Force Invoke-WebRequest to use TLS 1.2
-powershell -Command [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
-    Invoke-WebRequest -Uri %PROTOBUF_URL% -OutFile %PROTOBUF_ZIP%
-
-powershell -Command Expand-Archive -Path %PROTOBUF_ZIP% -DestinationPath .
-
-set FIX_FILE=%cd%\Fix-%PROTOBUF_UE4_VERSION%.bat
-if exist "%FIX_FILE%" (
-    call %FIX_FILE%
-) else (
-    echo protobuf-%PROTOBUF_UE4_VERSION% has not been modified
-)
 
 rd %PROTOBUF_UE4_PREFIX%
 mkdir %PROTOBUF_UE4_PREFIX%

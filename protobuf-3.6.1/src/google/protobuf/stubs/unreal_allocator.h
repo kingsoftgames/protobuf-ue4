@@ -39,6 +39,7 @@ namespace ue4 {
         {
             return FMemory::Free(p);
         }
+
 #endif
 
         unreal_allocator() throw() : std::allocator<T>() { }
@@ -49,29 +50,9 @@ namespace ue4 {
         ~unreal_allocator() throw() {}
     };
 
-    typedef std::basic_stringstream<char, std::char_traits<char>, unreal_allocator<char>> stringstream;
-    typedef std::basic_string<char, std::char_traits<char>, unreal_allocator<char>> string;
-    typedef std::basic_ostringstream<char, std::char_traits<char>, unreal_allocator<char>> ostringstream;
-
-
-    template<typename _Ty>
-    using vector = std::vector<_Ty, unreal_allocator<_Ty>>;
-
-    template<typename _Ty>
-    using deque = std::deque<_Ty, unreal_allocator<_Ty>>;
-
-    template<typename _Ty>
-    using queue = std::queue<_Ty, deque<_Ty>>;
-
-    template<typename _Ty>
-    using set = std::set<_Ty, std::less<_Ty>, unreal_allocator<_Ty>>;
-
-    template<typename _Kty, typename _Ty>
-    using map = std::map<_Kty, _Ty, std::less<_Kty>, unreal_allocator<std::pair<const _Kty, _Ty>>>;
-
-    template<typename _Kty, typename _Ty>
-    using unordered_map = std::unordered_map<_Kty, _Ty, std::hash<_Kty>, std::equal_to<_Kty>, unreal_allocator<std::pair<const _Kty, _Ty>>>;
-
+    typedef std::basic_stringstream<char, std::char_traits<char>, unreal_allocator<char> > stringstream;
+    typedef std::basic_string<char, std::char_traits<char>, unreal_allocator<char> > string;
+    typedef std::basic_ostringstream<char, std::char_traits<char>, unreal_allocator<char> > ostringstream;
 
 }
 

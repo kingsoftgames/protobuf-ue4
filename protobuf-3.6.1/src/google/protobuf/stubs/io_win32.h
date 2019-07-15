@@ -49,6 +49,7 @@
 
 #include <string>
 #include <google/protobuf/stubs/port.h>
+#include <google/protobuf/stubs/unreal_allocator.h>
 
 // Compilers on Windows other than MSVC (e.g. Cygwin, MinGW32) define the
 // following functions already, except for mkdir.

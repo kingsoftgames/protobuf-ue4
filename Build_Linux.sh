@@ -29,15 +29,8 @@ else
   echo "error: UE4_ROOT no exist."
 fi
 
-readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
-readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-rm -rf ${PROTOBUF_DIR}
-
-wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
-
-tar zxf ${PROTOBUF_TAR}
 cd ${PROTOBUF_DIR}
 
 rm -rf ${PROTOBUF_UE4_PREFIX}
@@ -52,11 +45,17 @@ export CXXFLAGS="-fPIC                    \
   -Wno-unused-command-line-argument       \
   -nostdinc++                             \
   -I${UE4_LIBCXX_ROOT}/include            \
-  -I${UE4_LIBCXX_ROOT}/include/c++/v1" 
+  -I${UE4_LIBCXX_ROOT}/include/c++/v1     \
+  -I${PROTOBUF_UE4_WORKSPACE}/${PROTOBUF_DIR}/src"
+  
 export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu"
 export LIBS="-lc++ -lc++abi"
 
 # static
+chmod +x autogen.sh                                          \
+         src/google/protobuf/io/gzip_stream_unittest.sh      \
+         src/google/protobuf/compiler/zip_output_unittest.sh
+
 ./autogen.sh
 ./configure                               \
   --disable-shared                        \

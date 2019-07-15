@@ -281,6 +281,7 @@
 
 #include "gtest/internal/gtest-port-arch.h"
 #include "gtest/internal/custom/gtest-port.h"
+
 #include <google/protobuf/stubs/unreal_allocator.h>
 
 #if !defined(GTEST_DEV_EMAIL_)
