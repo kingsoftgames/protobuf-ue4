@@ -29,34 +29,34 @@ rm -rf ${PROTOBUF_UE4_PREFIX}
 mkdir -p ${PROTOBUF_UE4_PREFIX}
 
 # android-19 means Android 4.4
-export SYSROOT=${NDKROOT}/platforms/android-19/arch-arm
-export TOOLCHAIN=${NDKROOT}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin
+export SYSROOT=${NDKROOT}/platforms/android-24/arch-arm64
+export TOOLCHAIN=${NDKROOT}/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin
 
 # build tools
-export CC="${TOOLCHAIN}/arm-linux-androideabi-gcc --sysroot=${SYSROOT}"
-export CXX="${TOOLCHAIN}/arm-linux-androideabi-g++ --sysroot=${SYSROOT}"
-export AR=${TOOLCHAIN}/arm-linux-androideabi-ar
-export LD=${TOOLCHAIN}/arm-linux-androideabi-ld
-export RANLIB=${TOOLCHAIN}/arm-linux-androideabi-ranlib
-export STRIP=${TOOLCHAIN}/arm-linux-androideabi-strip
-export READELF=${TOOLCHAIN}/arm-linux-androideabi-readelf
+export CC="${TOOLCHAIN}/aarch64-linux-android-gcc --sysroot=${SYSROOT}"
+export CXX="${TOOLCHAIN}/aarch64-linux-android-g++ --sysroot=${SYSROOT}"
+export AR=${TOOLCHAIN}/aarch64-linux-android-ar
+export LD=${TOOLCHAIN}/aarch64-linux-android-ld
+export RANLIB=${TOOLCHAIN}/aarch64-linux-android-ranlib
+export STRIP=${TOOLCHAIN}/aarch64-linux-android-strip
+export READELF=${TOOLCHAIN}/aarch64-linux-android-readelf
 export CXXSTL=${NDKROOT}/sources/cxx-stl/gnu-libstdc++/4.9
-export LIBS="-llog ${CXXSTL}/libs/armeabi-v7a/libgnustl_static.a"
+export LIBS="-llog ${CXXSTL}/libs/arm64-v8a/libgnustl_static.a"
 
 chmod +x autogen.sh configure
 
 ./autogen.sh
 
 ./configure --prefix=${PROTOBUF_UE4_PREFIX}/build         \
-  --host=arm-linux-androideabi                            \
+  --host=aarch64-linux-android                            \
   --with-sysroot=${SYSROOT}                               \
   --disable-shared                                        \
   --disable-debug                                         \
   --disable-dependency-tracking                           \
   --enable-cross-compile                                  \
   --with-protoc=protoc                                    \
-  CFLAGS="-march=armv7-a"                                 \
-  CXXFLAGS="${CFLAGS} -I${CXXSTL}/include -I${CXXSTL}/libs/armeabi-v7a/include"
+  CFLAGS="-march=armv8-a"                                 \
+  CXXFLAGS="${CFLAGS} -I${CXXSTL}/include -I${CXXSTL}/libs/arm64-v8a/include"
 
 make -j$(nproc)
 make install
