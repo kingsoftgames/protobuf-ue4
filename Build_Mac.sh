@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 if [[ -z "${PROTOBUF_UE4_VERSION}" ]]; then
   echo "PROTOBUF_UE4_VERSION is not set, exit."
   exit 1
@@ -22,30 +24,26 @@ else
 fi
 
 readonly CORE_COUNT=$(sysctl -n machdep.cpu.core_count)
+readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
+readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-rm -rf ${PROTOBUF_UE4_PREFIX}
-mkdir -p ${PROTOBUF_UE4_PREFIX}
+mkdir -p "${PROTOBUF_UE4_PREFIX}"
 
-cd ${PROTOBUF_DIR}/cmake
+echo "Downloading: ${PROTOBUF_URL}"
+wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
+tar zxf ${PROTOBUF_TAR}
 
-# static 
-cmake .                                                                 \
-  -Dprotobuf_BUILD_SHARED_LIBS=OFF                                      \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=${PROTOBUF_UE4_MACOS_DEPLOYMENT_TARGET} \
-  -DCMAKE_INSTALL_PREFIX="${PROTOBUF_UE4_PREFIX}/build"
+pushd ${PROTOBUF_DIR}/cmake
+  cmake .                                                                 \
+    -Dprotobuf_BUILD_SHARED_LIBS=OFF                                      \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${PROTOBUF_UE4_MACOS_DEPLOYMENT_TARGET} \
+    -DCMAKE_BUILD_TYPE=Release                                            \
+    -DCMAKE_INSTALL_PREFIX="${PROTOBUF_UE4_PREFIX}"
 
-make -j${CORE_COUNT}
-make check
-make install
+  make -j${CORE_COUNT}
+  make check
+  make install
 
-rm -rf ${PROTOBUF_UE4_PREFIX}/mac
-mkdir -p ${PROTOBUF_UE4_PREFIX}/mac/lib
-
-mv ${PROTOBUF_UE4_PREFIX}/build/lib/libprotobuf.a ${PROTOBUF_UE4_PREFIX}/mac/lib/libprotobuf.a
-
-rm -rf ${PROTOBUF_UE4_PREFIX}/build
-
-otool -hv ${PROTOBUF_UE4_PREFIX}/mac/lib/libprotobuf.a | head -n 25
-
-
+  otool -hv "${PROTOBUF_UE4_PREFIX}/lib/libprotobuf.a" | head -n 25
+popd

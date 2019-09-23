@@ -29,16 +29,22 @@ else
   echo "error: UE4_ROOT no exist."
 fi
 
+echo "MYCFLAGS: ${MYCFLAGS}"
+echo "MYLDFLAGS: ${MYLDFLAGS}"
+
+readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
+readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-cd ${PROTOBUF_DIR}
+mkdir -p "${PROTOBUF_UE4_PREFIX}"
 
-rm -rf ${PROTOBUF_UE4_PREFIX}
-mkdir -p ${PROTOBUF_UE4_PREFIX}
+echo "Downloading: ${PROTOBUF_URL}"
+wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
+tar zxf ${PROTOBUF_TAR}
 
 export CC=/usr/bin/clang-5.0
 export CXX=/usr/bin/clang++-5.0
-export UE4_LIBCXX_ROOT=${UE4_ROOT}/Engine/Source/ThirdParty/Linux/LibCxx
+export UE4_LIBCXX_ROOT="${UE4_ROOT}/Engine/Source/ThirdParty/Linux/LibCxx"
 export CXXFLAGS="-fPIC                    \
   -O2                                     \
   -DNDEBUG                                \
@@ -46,32 +52,21 @@ export CXXFLAGS="-fPIC                    \
   -nostdinc++                             \
   -I${UE4_LIBCXX_ROOT}/include            \
   -I${UE4_LIBCXX_ROOT}/include/c++/v1     \
-  -I${PROTOBUF_UE4_WORKSPACE}/${PROTOBUF_DIR}/src"
-  
-export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu"
+  ${MYCFLAGS}" 
+export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu ${MYLDFLAGS}"
 export LIBS="-lc++ -lc++abi"
 
-# static
-chmod +x autogen.sh                                          \
-         src/google/protobuf/io/gzip_stream_unittest.sh      \
-         src/google/protobuf/compiler/zip_output_unittest.sh
+pushd ${PROTOBUF_DIR}
+  ./autogen.sh
+  ./configure                               \
+    --disable-shared                        \
+    --disable-debug                         \
+    --disable-dependency-tracking           \
+    --prefix="${PROTOBUF_UE4_PREFIX}"
 
-./autogen.sh
-./configure                               \
-  --disable-shared                        \
-  --disable-debug                         \
-  --disable-dependency-tracking           \
-  --prefix="${PROTOBUF_UE4_PREFIX}/build"
+  make -j$(nproc)
+  make check
+  make install
 
-make -j$(nproc)
-make check
-make install
-
-rm -rf ${PROTOBUF_UE4_PREFIX}/linux
-mkdir -p ${PROTOBUF_UE4_PREFIX}/linux/lib
-
-mv ${PROTOBUF_UE4_PREFIX}/build/lib/libprotobuf.a ${PROTOBUF_UE4_PREFIX}/linux/lib/libprotobuf.a
-
-rm -rf ${PROTOBUF_UE4_PREFIX}/build
-
-objdump -h ${PROTOBUF_UE4_PREFIX}/linux/lib/libprotobuf.a | head -n 25
+  objdump -h "${PROTOBUF_UE4_PREFIX}/lib/libprotobuf.a" | head -n 25
+popd
