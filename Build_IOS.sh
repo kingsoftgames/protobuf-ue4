@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 if [[ -z "${PROTOBUF_UE4_VERSION}" ]]; then
   echo "PROTOBUF_UE4_VERSION is not set, exit."
   exit 1
@@ -22,30 +24,31 @@ else
 fi
 
 readonly CORE_COUNT=$(sysctl -n machdep.cpu.core_count)
-
+readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
+readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-rm -rf ${PROTOBUF_UE4_PREFIX}
-mkdir -p ${PROTOBUF_UE4_PREFIX}
+mkdir -p "${PROTOBUF_UE4_PREFIX}"
 
-cd ${PROTOBUF_DIR}/cmake
+echo "Downloading: ${PROTOBUF_URL}"
+wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
+tar zxf ${PROTOBUF_TAR}
 
-cmake -DCMAKE_INSTALL_PREFIX=${PROTOBUF_UE4_PREFIX}/ios . -G "Xcode"
-xcodebuild -project protobuf.xcodeproj                               \
-  -target libprotobuf                                                \
-  -configuration Release                                             \
-  -sdk iphoneos                                                      \
-  -arch arm64                                                        \
-  IPHONEOS_DEPLOYMENT_TARGET=${PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET}   \
-  GCC_SYMBOLS_PRIVATE_EXTERN=YES                                     \
-  -jobs ${CORE_COUNT}                                                \
-  build
-xcodebuild -target install build
+pushd ${PROTOBUF_DIR}/cmake
+  cmake -DCMAKE_INSTALL_PREFIX="${PROTOBUF_UE4_PREFIX}" . -G "Xcode"
+  xcodebuild -project protobuf.xcodeproj                               \
+    -target libprotobuf                                                \
+    -configuration Release                                             \
+    -sdk iphoneos                                                      \
+    -arch arm64                                                        \
+    IPHONEOS_DEPLOYMENT_TARGET=${PROTOBUF_UE4_IOS_DEPLOYMENT_TARGET}   \
+    GCC_SYMBOLS_PRIVATE_EXTERN=YES                                     \
+    -jobs ${CORE_COUNT}                                                \
+    build
+  xcodebuild -target install build
 
-rm -rf ${PROTOBUF_UE4_PREFIX}/ios/include
-rm -rf ${PROTOBUF_UE4_PREFIX}/ios/bin
-rm -rf ${PROTOBUF_UE4_PREFIX}/ios/lib/*
+  # TODO: delete the code below, shoud use xcodebuild config.
+  mv Release-iphoneos/libprotobuf.a "${PROTOBUF_UE4_PREFIX}/lib/libprotobuf.a"
 
-mv Release-iphoneos/libprotobuf.a Release-iphoneos/libprotobuf-arm64.a
-lipo -create Release-iphoneos/libprotobuf-arm64.a -output ${PROTOBUF_UE4_PREFIX}/ios/lib/libprotobuf.a
-lipo -info ${PROTOBUF_UE4_PREFIX}/ios/lib/libprotobuf.a
+  lipo -info "${PROTOBUF_UE4_PREFIX}/lib/libprotobuf.a"
+popd

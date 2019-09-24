@@ -35,34 +35,34 @@ if exist "%VS2017DEVCMD%" (
      exit /b 2
 )
 
+set PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v%PROTOBUF_UE4_VERSION%/protobuf-cpp-%PROTOBUF_UE4_VERSION%.zip
 set PROTOBUF_DIR=protobuf-%PROTOBUF_UE4_VERSION%
+set PROTOBUF_ZIP=protobuf-%PROTOBUF_UE4_VERSION%.zip
 
-rd %PROTOBUF_UE4_PREFIX%
-mkdir %PROTOBUF_UE4_PREFIX%
+echo "Downloading: %PROTOBUF_URL%"
+REM Force Invoke-WebRequest to use TLS 1.2
+powershell -Command [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
+    Invoke-WebRequest -Uri %PROTOBUF_URL% -OutFile %PROTOBUF_ZIP%
 
-cd %CURRENT_DIR%
-cd %PROTOBUF_DIR%\cmake
-mkdir build & cd build
+powershell -Command Expand-Archive -Path %PROTOBUF_ZIP% -DestinationPath .
 
-echo ########## static build ##########
-mkdir static
-pushd static
+set FIX_FILE=%cd%\Fix-%PROTOBUF_UE4_VERSION%.bat
+if exist "%FIX_FILE%" (
+    call %FIX_FILE%
+) else (
+    echo protobuf-%PROTOBUF_UE4_VERSION% has not been modified
+)
+
+mkdir "%PROTOBUF_UE4_PREFIX%"
+
+cd "%CURRENT_DIR%"
+
+pushd %PROTOBUF_DIR%\cmake
     cmake -G "NMake Makefiles" ^
         -DCMAKE_BUILD_TYPE=Release ^
-        -DCMAKE_INSTALL_PREFIX="%PROTOBUF_UE4_PREFIX%/static" ^
-        %PROTOBUF_CMAKE_OPTIONS% ../..
+        -DCMAKE_INSTALL_PREFIX="%PROTOBUF_UE4_PREFIX%" ^
+        %PROTOBUF_CMAKE_OPTIONS% .
     nmake
     nmake check
     nmake install
 popd
-
-mkdir %PROTOBUF_UE4_PREFIX%\windows\bin
-mkdir %PROTOBUF_UE4_PREFIX%\windows\lib
-
-move %PROTOBUF_UE4_PREFIX%\static\lib\libprotobuf.lib %PROTOBUF_UE4_PREFIX%\windows\lib\libprotobuf.lib
-move %PROTOBUF_UE4_PREFIX%\static\bin\protoc.exe %PROTOBUF_UE4_PREFIX%\windows\bin\protoc.exe
-move %PROTOBUF_UE4_PREFIX%\static\include %PROTOBUF_UE4_PREFIX%\windows\include
-
-rd /S /Q %PROTOBUF_UE4_PREFIX%\static
-
-
