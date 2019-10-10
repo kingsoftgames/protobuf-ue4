@@ -30,44 +30,60 @@ readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PR
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
 readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
 
-mkdir -p "${PROTOBUF_UE4_PREFIX}"
-
 echo "Downloading: ${PROTOBUF_URL}"
 wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
-tar zxf ${PROTOBUF_TAR}
 
-# android-24 means Android 7.0
-export SYSROOT="${NDKROOT}/platforms/android-24/arch-arm64"
-export TOOLCHAIN="${NDKROOT}/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin"
+function build_android {
+  MYARCHARM=$1
+  MYTOOL=$2
+  MYHOST=$2
+  MYLIB=$3
+  MYARCH=$3
+  MYMARCH=$4
 
-# build tools
-export CC="${TOOLCHAIN}/aarch64-linux-android-gcc --sysroot=${SYSROOT}"
-export CXX="${TOOLCHAIN}/aarch64-linux-android-g++ --sysroot=${SYSROOT}"
-export AR="${TOOLCHAIN}/aarch64-linux-android-ar"
-export LD="${TOOLCHAIN}/aarch64-linux-android-ld"
-export RANLIB="${TOOLCHAIN}/aarch64-linux-android-ranlib"
-export STRIP="${TOOLCHAIN}/aarch64-linux-android-strip"
-export READELF="${TOOLCHAIN}/aarch64-linux-android-readelf"
-export CXXSTL="${NDKROOT}/sources/cxx-stl/gnu-libstdc++/4.9"
-export LIBS="-llog ${CXXSTL}/libs/arm64-v8a/libgnustl_static.a"
+  tar zxf ${PROTOBUF_TAR}
 
-pushd ${PROTOBUF_DIR}
-  ./autogen.sh
+  mkdir -p "${PROTOBUF_UE4_PREFIX}/${MYARCH}"
 
-  ./configure --prefix="${PROTOBUF_UE4_PREFIX}"             \
-    --host=aarch64-linux-android                            \
-    --with-sysroot="${SYSROOT}"                             \
-    --disable-shared                                        \
-    --disable-debug                                         \
-    --disable-dependency-tracking                           \
-    --enable-cross-compile                                  \
-    --with-protoc=protoc                                    \
-    CFLAGS="-march=armv8-a ${MYCFLAGS}"                     \
-    CXXFLAGS="${CFLAGS} -I${CXXSTL}/include -I${CXXSTL}/libs/arm64-v8a/include" \
-    LDFLAGS="${MYLDFLAGS}"
+  # android-24 means Android 7.0
+  export SYSROOT="${NDKROOT}/platforms/android-24/${MYARCHARM}"
+  export TOOLCHAIN="${NDKROOT}/toolchains/${MYTOOL}-4.9/prebuilt/linux-x86_64/bin"
 
-  make -j$(nproc)
-  make install
+  # build tools
+  export CC="${TOOLCHAIN}/${MYTOOL}-gcc --sysroot=${SYSROOT}"
+  export CXX="${TOOLCHAIN}/${MYTOOL}-g++ --sysroot=${SYSROOT}"
+  export AR="${TOOLCHAIN}/${MYTOOL}-ar"
+  export LD="${TOOLCHAIN}/${MYTOOL}-ld"
+  export RANLIB="${TOOLCHAIN}/${MYTOOL}-ranlib"
+  export STRIP="${TOOLCHAIN}/${MYTOOL}-strip"
+  export READELF="${TOOLCHAIN}/${MYTOOL}-readelf"
+  export CXXSTL="${NDKROOT}/sources/cxx-stl/gnu-libstdc++/4.9"
+  export LIBS="-llog ${CXXSTL}/libs/${MYLIB}/libgnustl_static.a"
 
-  objdump -h "${PROTOBUF_UE4_PREFIX}/lib/libprotobuf.a" | head -n 25
-popd
+  pushd ${PROTOBUF_DIR}
+    ./autogen.sh
+
+    ./configure --prefix="${PROTOBUF_UE4_PREFIX}/${MYARCH}"   \
+      --host=${MYHOST}                                        \
+      --with-sysroot="${SYSROOT}"                             \
+      --disable-shared                                        \
+      --disable-debug                                         \
+      --disable-dependency-tracking                           \
+      --enable-cross-compile                                  \
+      --with-protoc=protoc                                    \
+      CFLAGS="-march=${MYMARCH} ${MYCFLAGS}"                  \
+      CXXFLAGS="${CFLAGS} -I${CXXSTL}/include -I${CXXSTL}/libs/${MYLIB}/include" \
+      LDFLAGS="${MYLDFLAGS}"
+
+    make -j$(nproc)
+    make install
+
+    objdump -h "${PROTOBUF_UE4_PREFIX}/${MYARCH}/lib/libprotobuf.a" | head -n 25
+  popd
+}
+
+build_android arch-arm arm-linux-androideabi armeabi-v7a armv7-a
+
+rm -rfv ${PROTOBUF_DIR}
+build_android arch-arm64 aarch64-linux-android arm64-v8a armv8-a
+
