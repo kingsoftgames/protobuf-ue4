@@ -42,9 +42,14 @@ echo "Downloading: ${PROTOBUF_URL}"
 wget -q -O ${PROTOBUF_TAR} ${PROTOBUF_URL}
 tar zxf ${PROTOBUF_TAR}
 
-export CC=/usr/bin/clang-5.0
-export CXX=/usr/bin/clang++-5.0
+export UE4_CLANG_ROOT="${UE4_ROOT}/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v12_clang-6.0.1-centos7/x86_64-unknown-linux-gnu"
 export UE4_LIBCXX_ROOT="${UE4_ROOT}/Engine/Source/ThirdParty/Linux/LibCxx"
+
+export CC="${UE4_CLANG_ROOT}/bin/clang --sysroot=${UE4_CLANG_ROOT}"
+export CXX="${UE4_CLANG_ROOT}/bin/clang++ --sysroot=${UE4_CLANG_ROOT}"
+
+export CFLAGS="-fuse-ld=lld ${MYCFLAGS}"
+
 export CXXFLAGS="-fPIC                    \
   -O2                                     \
   -DNDEBUG                                \
@@ -52,8 +57,14 @@ export CXXFLAGS="-fPIC                    \
   -nostdinc++                             \
   -I${UE4_LIBCXX_ROOT}/include            \
   -I${UE4_LIBCXX_ROOT}/include/c++/v1     \
-  ${MYCFLAGS}" 
-export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu ${MYLDFLAGS}"
+  ${CFLAGS}"
+
+export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu \
+  -L${UE4_ROOT}/Engine/Source/ThirdParty/zlib/v1.2.8/lib/Linux/x86_64-unknown-linux-gnu \
+  -L${UE4_CLANG_ROOT}/usr/lib64 \
+  -B${UE4_CLANG_ROOT}/usr/lib64 \
+  ${MYLDFLAGS}"
+
 export LIBS="-lc++ -lc++abi"
 
 pushd ${PROTOBUF_DIR}
