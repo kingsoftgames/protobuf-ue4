@@ -16,6 +16,7 @@ powershell -Command "$text=Get-Content type.pb.h ;" ^
                     "$text[2]='#endif' ;" ^
                     "$text| Set-Content type.pb.h"
 
+REM error: 'GOOGLE_PROTOBUF_USE_UNALIGNED' is not defined
 pushd stubs
     powershell -Command "$text=Get-Content port.h ;" ^
                         "$text[205]='#elif defined(GOOGLE_PROTOBUF_USE_UNALIGNED)' ;" ^
