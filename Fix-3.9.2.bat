@@ -17,8 +17,10 @@ powershell -Command "$text=Get-Content type.pb.h ;" ^
                     "$text| Set-Content type.pb.h"
 
 REM error: 'GOOGLE_PROTOBUF_USE_UNALIGNED' is not defined
+REM build client android in MAC or WINDOWS, error: undefined bswap_16 bswap_32 bswap_64
 pushd stubs
     powershell -Command "$text=Get-Content port.h ;" ^
                         "$text[205]='#elif defined(GOOGLE_PROTOBUF_USE_UNALIGNED)' ;" ^
+                        "$text[272]='#elif !defined(__GLIBC__) && !defined(__BIONIC__) && !defined(__CYGWIN__) || !defined(bswap_16)' ;" ^
                         "$text| Set-Content port.h"
 popd
