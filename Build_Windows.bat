@@ -16,6 +16,11 @@
     exit /b 1
 )
 
+@if "%COMPILER%"=="" (
+    echo COMPILER_VERSION is not set, exit.
+    exit /b 1
+)
+
 set CURRENT_DIR=%cd%
 @REM We only need x64 (VsDevCmd.bat defaults arch to x86, pass -help to see all available options)
 set PROTOBUF_ARCH=x64
@@ -23,15 +28,15 @@ set PROTOBUF_ARCH=x64
 set PROTOBUF_CMAKE_OPTIONS=-Dprotobuf_MSVC_STATIC_RUNTIME=OFF
 
 @REM -----------------------------------------------------------------------
-@REM Set Environment Variables for the Visual Studio 2017 Command Line
-set VS2017DEVCMD=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
-if exist "%VS2017DEVCMD%" (
+@REM Set Environment Variables for the Visual Studio %COMPILER% Command Line
+set VSDEVCMD=C:\Program Files (x86)\Microsoft Visual Studio\%COMPILER%\Community\Common7\Tools\VsDevCmd.bat
+if exist "%VSDEVCMD%" (
     @REM Tell VsDevCmd.bat to set the current directory, in case [USERPROFILE]\source exists. See:
-    @REM C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\vsdevcmd\core\vsdevcmd_end.bat
+    @REM C:\Program Files (x86)\Microsoft Visual Studio\%COMPILER%\Community\Common7\Tools\vsdevcmd\core\vsdevcmd_end.bat
      set VSCMD_START_DIR=%CD%
-     call "%VS2017DEVCMD%" -arch=%PROTOBUF_ARCH%
+     call "%VSDEVCMD%" -arch=%PROTOBUF_ARCH%
       ) else (
-     echo ERROR: Cannot find Visual Studio 2017
+     echo ERROR: Cannot find Visual Studio %COMPILER%
      exit /b 2
 )
 
