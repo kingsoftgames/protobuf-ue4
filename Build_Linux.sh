@@ -16,6 +16,20 @@ else
   echo "PROTOBUF_UE4_PREFIX: ${PROTOBUF_UE4_PREFIX}"
 fi
 
+if [[ -z "${UE4_CLANG_VERSION}" ]]; then
+  echo "UE4_CLANG_VERSION is not set, exit."
+  exit 1
+else
+  echo "UE4_CLANG_VERSION: ${UE4_CLANG_VERSION}"
+fi
+
+if [[ -z "${UE4_ZLIB_VERSION}" ]]; then
+  echo "UE4_ZLIB_VERSION is not set, exit."
+  exit 1
+else
+  echo "UE4_ZLIB_VERSION: ${UE4_ZLIB_VERSION}"
+fi
+
 if [[ -z "${UE4_ROOT}" ]]; then
   echo "UE4_ROOT is not set, exit."
   exit 1
@@ -37,10 +51,6 @@ echo "MYLDFLAGS: ${MYLDFLAGS}"
 readonly PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v${PROTOBUF_UE4_VERSION}/protobuf-cpp-${PROTOBUF_UE4_VERSION}.tar.gz
 readonly PROTOBUF_DIR=protobuf-${PROTOBUF_UE4_VERSION}
 readonly PROTOBUF_TAR=${PROTOBUF_DIR}.tar.gz
-
-# unreal engine v4.21
-readonly UE4_CLANG_VERSION=v12_clang-6.0.1-centos7
-readonly UE4_ZLIB_VERSION=v1.2.8
 
 readonly UE4_CLANG_ROOT="${UE4_ROOT}/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/${UE4_CLANG_VERSION}/x86_64-unknown-linux-gnu"
 readonly UE4_LIBCXX_ROOT="${UE4_ROOT}/Engine/Source/ThirdParty/Linux/LibCxx"
